@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { AppState } from 'src/app/app.reducer';
 import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
@@ -7,13 +10,25 @@ import { AuthService } from 'src/app/services/auth.service';
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css']
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
+
+  nombre: string = ''
+  userSubs: Subscription = new Subscription();
 
   constructor(
     private authService: AuthService,
-    private router: Router) { }
+    private router: Router,
+    private store: Store<AppState>) { }
 
   ngOnInit(): void {
+    this.userSubs = this.store.select('user').subscribe(({user}) =>{
+      if(user)
+      this.nombre = user?.nombre
+    })
+  }
+
+  ngOnDestroy(): void {
+      this.userSubs.unsubscribe();
   }
 
   logout(){

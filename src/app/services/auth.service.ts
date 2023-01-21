@@ -1,3 +1,5 @@
+import * as ingresoEgresoActions from './../ingreso-egreso/ingreso-egreso.actions';
+
 import * as authActions from './../auth/auth.actions';
 import { AppState } from 'src/app/app.reducer';
 import { Store } from '@ngrx/store';
@@ -13,6 +15,11 @@ import { Usuario } from '../models/usuario.model';
 export class AuthService {
 
   userSubscription: Subscription = new Subscription()
+  private _user?: Usuario | null;
+
+  get user(){
+    return this._user;
+  }
 
   constructor(
     private auth: AngularFireAuth,
@@ -21,15 +28,17 @@ export class AuthService {
 
   initAuthLsitener(){
     this.auth.authState.subscribe( fuser =>{
-      //console.log(fuser)
       if(fuser){
         this.userSubscription = this.firestore.doc(`${ fuser.uid }/usuario`).valueChanges().subscribe( (firestoreUser : any) =>{
           const user = Usuario.fromFirebas(firestoreUser)
+          this._user = user;
           this.store.dispatch(authActions.setUser({ user }))
+
          } )
       }else{
         this.userSubscription.unsubscribe();
         this.store.dispatch(authActions.unSetUser());
+        this.store.dispatch( ingresoEgresoActions.unSetItems())
       }
     })
   }
@@ -39,6 +48,7 @@ export class AuthService {
     return this.auth.createUserWithEmailAndPassword(email,password)
               .then(({user})=>{
                 if(user?.uid){
+                  this._user = null
                   const newUser = new Usuario(user.uid,nombre,email);
                   return this.firestore.doc(`${ user.uid }/usuario`).set({ ...newUser });
                 }else{
