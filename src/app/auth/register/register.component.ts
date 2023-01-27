@@ -58,7 +58,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
     const {nombre, correo, password} = this.registroForm.value;
     this.authService.crearUsuario(nombre, correo, password)
       .then( credenciales =>{
-        console.log(credenciales)
         /* Swal.close(); */
         this.store.dispatch(ui.stopLoading())
         this.router.navigate(['/']);

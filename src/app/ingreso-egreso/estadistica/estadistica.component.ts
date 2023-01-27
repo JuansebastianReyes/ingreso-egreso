@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from 'src/app/app.reducer';
 import { ChartData, ChartEvent, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
+import { AppStateWhitIngreso } from '../ingreso-egreso.reducer';
 
 @Component({
   selector: 'app-estadistica',
@@ -31,7 +32,7 @@ export class EstadisticaComponent implements OnInit {
   totalEgresos:number = 0;
 
 
-  constructor(private store: Store<AppState>) { }
+  constructor(private store: Store<AppStateWhitIngreso>) { }
 
   ngOnInit(): void {
     this.store.select('ingresoEgreso').subscribe( ({ items })=>{
